@@ -3,6 +3,7 @@ import { createLazyFileRoute } from "@tanstack/react-router";
 import videoUrl from "../assets/example.mp4";
 import { TextInput, Button } from "flowbite-react";
 import { createAuth } from "../lib/authClient";
+import { scopes } from "../lib/client";
 
 export const Route = createLazyFileRoute("/")({
   component: Index,
@@ -40,15 +41,13 @@ function ServerOauth() {
 
           localStorage.setItem("serverDomain", text);
 
-          const scopes = "read write:reports admin:read admin:write";
-
           if (
             !localStorage.getItem("clientId") ||
             !localStorage.getItem("clientSecret")
           ) {
             const app = await auth.v1.apps.create({
               clientName: "Citadel",
-              scopes: "read write:reports admin:read admin:write",
+              scopes: scopes,
               redirectUris: `${import.meta.env.VITE_PUBLIC_DOMAIN}/oauth`,
             });
 

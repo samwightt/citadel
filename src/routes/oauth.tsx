@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createRestAPIClient } from "masto";
 import { z } from "zod";
+import { scopes } from "../lib/client";
 
 const schema = z.object({
   code: z.string(),
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/oauth")({
       "redirect_uri",
       `${import.meta.env.VITE_PUBLIC_DOMAIN}/oauth`
     );
-    urlParams.append("scope", "read write:reports admin:read admin:write");
+    urlParams.append("scope", scopes);
 
     const url = `https://${serverDomain}/oauth/token`;
     const fullUrl = `${url}?${urlParams.toString()}`;

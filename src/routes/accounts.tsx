@@ -17,7 +17,7 @@ export const Route = createFileRoute("/accounts")({
   }),
   loader: async ({ deps: { type, suspended, maxId } }) => {
     console.log(suspended);
-    const accounts = masto.v1.admin.accounts.list({
+    const accounts = masto().v1.admin.accounts.list({
       remote: type === "remote" || undefined,
       suspended: suspended === true || undefined,
       maxId: maxId,

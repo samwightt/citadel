@@ -18,8 +18,8 @@ function Account() {
   const { invalidate } = useRouter();
   const query = useQuery({
     queryFn: async () => {
-      const statuses = await masto.v1.accounts
-        .$select(account.id)
+      const statuses = await masto()
+        .v1.accounts.$select(account.id)
         .statuses.list({
           excludeReplies: false,
         });
@@ -31,14 +31,14 @@ function Account() {
   const { mutate, isPending, isSuccess } = useMutation({
     mutationKey: ["suspend", account.id],
     mutationFn: async () => {
-      const report = await masto.v1.reports.create({
+      const report = await masto().v1.reports.create({
         accountId: account.id,
         category: "spam",
         forward: true,
         comment: "This account is spam. Please suspend them.",
       });
 
-      await masto.v1.admin.accounts.$select(account.id).action.create({
+      await masto().v1.admin.accounts.$select(account.id).action.create({
         type: "suspend",
         reportId: report.id,
         sendEmailNotification: true,
