@@ -11,7 +11,7 @@ export const Route = createLazyFileRoute("/")({
 function Index() {
   return (
     <div className="flex w-full min-h-screen flex-col justify-center items-center max-w-6xl mx-auto">
-      <h1 className="text-4xl">Welcome to Overseer!</h1>
+      <h1 className="text-4xl">Welcome to Citadel!</h1>
       <p className="mt-4 mb-8">
         Citadel is a suite of tools that makes moderating Mastodon servers
         easier. Right now it makes it very easy to suspend spam accounts and
