@@ -39,6 +39,7 @@ export const Route = createFileRoute("/oauth")({
       }).v1.apps.verifyCredentials();
       console.log(authResult);
       localStorage.setItem("accessToken", json.access_token);
+      await new Promise((resolve) => setTimeout(resolve, 500));
       navigate({
         to: "/accounts",
       });
