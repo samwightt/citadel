@@ -45,7 +45,7 @@ export async function checkAuthCached() {
   return authStatus;
 }
 
-const serverUrl = () => {
+export const serverUrl = () => {
   const domain = localStorage.getItem("serverDomain")!;
   return `https://${domain}`;
 };

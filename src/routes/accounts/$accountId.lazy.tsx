@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-router";
 import { Avatar, Button } from "flowbite-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { masto } from "../../lib/client";
+import { masto, serverUrl } from "../../lib/client";
 import { mastodon } from "masto";
 import { useAccountStatuses } from "../../queries/useAccountStatuses";
 
@@ -115,17 +115,29 @@ const LimitDomainButton = (props: LimitDomainButtonProps) => {
   const currentDomainBlocks = useQuery({
     queryKey: ["currentBlocks"],
     queryFn: async () => {
-      const blockIterator = masto()
-        .v1.admin.domainBlocks.list({
-          limit: 200,
-        })
-        .values();
-      let blocks: Array<mastodon.v1.Admin.DomainBlock> = [];
-      for await (const blockList of blockIterator) {
-        blocks = blocks.concat(blockList);
-      }
+      try {
+        // Use admin API first, if that doesn't work, try the public one, if that doesn't work, return an empty array and pray.
+        const blockIterator = masto()
+          .v1.admin.domainBlocks.list({
+            limit: 200,
+          })
+          .values();
+        let blocks: Array<mastodon.v1.Admin.DomainBlock> = [];
+        for await (const blockList of blockIterator) {
+          blocks = blocks.concat(blockList);
+        }
 
-      return blocks;
+        return blocks;
+      } catch (e) {
+        console.error(e);
+        try {
+          return await (
+            await fetch(`${serverUrl()}/api/v1/instance/domain_blocks`)
+          ).json();
+        } catch (e) {
+          return [];
+        }
+      }
     },
   });
   const queryClient = useQueryClient();
