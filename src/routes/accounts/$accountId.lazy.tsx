@@ -7,6 +7,7 @@ import { Avatar, Button } from "flowbite-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { masto } from "../../lib/client";
 import { mastodon } from "masto";
+import { useAccountStatuses } from "../../queries/useAccountStatuses";
 
 export const Route = createLazyFileRoute("/accounts/$accountId")({
   component: Account,
@@ -45,18 +46,7 @@ const Posts = () => {
   const { account } = useLoaderData({
     from: "/accounts/$accountId",
   });
-  const query = useQuery({
-    queryFn: async () => {
-      const statuses = await masto()
-        .v1.accounts.$select(account.id)
-        .statuses.list({
-          excludeReplies: false,
-        });
-
-      return statuses;
-    },
-    queryKey: ["statuses", account.id],
-  });
+  const query = useAccountStatuses(account);
 
   return (
     <div>
@@ -79,6 +69,7 @@ const SuspendButton = () => {
   const { account } = useLoaderData({
     from: "/accounts/$accountId",
   });
+  const statusQuery = useAccountStatuses(account);
   const { invalidate } = useRouter();
   const mutation = useMutation({
     mutationKey: ["suspend", account.id],
@@ -88,6 +79,10 @@ const SuspendButton = () => {
         category: "spam",
         forward: true,
         comment: "This account is spam. Please suspend them.",
+        statusIds:
+          statusQuery.data && statusQuery.data?.length > 0
+            ? [statusQuery.data[0].id]
+            : [],
       });
 
       await masto().v1.admin.accounts.$select(account.id).action.create({
