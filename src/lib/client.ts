@@ -47,6 +47,6 @@ export async function checkAuthCached() {
 
 export const masto = () =>
   createRestAPIClient({
-    url: "https://urbanists.social",
+    url: localStorage.getItem("serverDomain")!,
     accessToken: localStorage.getItem("accessToken")!,
   });
