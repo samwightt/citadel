@@ -131,11 +131,11 @@ const LimitDomainButton = (props: LimitDomainButtonProps) => {
       } catch (e) {
         console.error(e);
         try {
-          return await (
+          return (await (
             await fetch(`${serverUrl()}/api/v1/instance/domain_blocks`)
-          ).json();
+          ).json()) as Array<mastodon.v1.Admin.DomainBlock>;
         } catch (e) {
-          return [];
+          return [] as Array<mastodon.v1.Admin.DomainBlock>;
         }
       }
     },
