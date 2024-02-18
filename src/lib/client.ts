@@ -45,8 +45,13 @@ export async function checkAuthCached() {
   return authStatus;
 }
 
+const serverUrl = () => {
+  const domain = localStorage.getItem("serverDomain")!;
+  return `https://${domain}`;
+};
+
 export const masto = () =>
   createRestAPIClient({
-    url: localStorage.getItem("serverDomain")!,
+    url: serverUrl(),
     accessToken: localStorage.getItem("accessToken")!,
   });
