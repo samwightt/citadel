@@ -4,8 +4,9 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { Avatar, Button } from "flowbite-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { masto } from "../../lib/client";
+import { mastodon } from "masto";
 
 export const Route = createLazyFileRoute("/accounts/$accountId")({
   component: Account,
@@ -34,6 +35,7 @@ function Account() {
         <p>Bio: {JSON.stringify(account.account.fields)}</p>
       </div>
       <SuspendButton />
+      {account.domain && <LimitDomainButton domain={account.domain} />}
       <Posts />
     </div>
   );
@@ -106,6 +108,82 @@ const SuspendButton = () => {
       disabled={mutation.isPending || account.suspended || mutation.isSuccess}
     >
       {account.suspended || mutation.isSuccess ? "Suspended!" : "Suspend Spam"}
+    </Button>
+  );
+};
+
+interface LimitDomainButtonProps {
+  domain: string;
+}
+
+const LimitDomainButton = (props: LimitDomainButtonProps) => {
+  const currentDomainBlocks = useQuery({
+    queryKey: ["currentBlocks"],
+    queryFn: async () => {
+      const blockIterator = masto()
+        .v1.admin.domainBlocks.list({
+          limit: 200,
+        })
+        .values();
+      let blocks: Array<mastodon.v1.Admin.DomainBlock> = [];
+      for await (const blockList of blockIterator) {
+        blocks = blocks.concat(blockList);
+      }
+
+      return blocks;
+    },
+  });
+  const queryClient = useQueryClient();
+
+  const isBlockedDomain: boolean | null =
+    currentDomainBlocks.data !== undefined
+      ? currentDomainBlocks.data.some((x) => x.domain === props.domain)
+      : null;
+
+  const domainBlockMutation = useMutation({
+    mutationFn: async () => {
+      if (isBlockedDomain === false) {
+        await masto().v1.admin.domainBlocks.create({
+          domain: props.domain,
+          publicComment: "Limited because of spam.",
+          severity: "silence",
+        });
+        queryClient.setQueryData(
+          ["currentBlocks"],
+          (
+            old: Array<mastodon.v1.Admin.DomainBlock>
+          ): Array<mastodon.v1.Admin.DomainBlock> => [
+            ...old,
+            {
+              domain: props.domain,
+              publicComment: "Limited because of spam.",
+              severity: "silence",
+              createdAt: new Date().toISOString(),
+              obfuscate: false,
+              rejectMedia: false,
+              id: "ooop",
+              rejectReposts: false,
+            },
+          ]
+        );
+      }
+    },
+  });
+
+  return (
+    <Button
+      onClick={() => domainBlockMutation.mutate()}
+      disabled={
+        isBlockedDomain === true ||
+        currentDomainBlocks.isPending ||
+        domainBlockMutation.isPending
+      }
+    >
+      {isBlockedDomain === true
+        ? "Domain limited!"
+        : isBlockedDomain === null
+          ? "Loading..."
+          : "Limit Domain"}
     </Button>
   );
 };
