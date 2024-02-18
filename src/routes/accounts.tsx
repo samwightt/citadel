@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { masto } from "../lib/client";
+import { checkAuthCached, masto } from "../lib/client";
 import { z } from "zod";
 
 const searchSchema = z.object({
@@ -15,8 +15,13 @@ export const Route = createFileRoute("/accounts")({
     suspended: search.suspended,
     maxId: search.maxId,
   }),
-  loader: async ({ deps: { type, suspended, maxId } }) => {
-    console.log(suspended);
+  loader: async ({ deps: { type, suspended, maxId }, navigate }) => {
+    if (!(await checkAuthCached())) {
+      navigate({
+        to: "/",
+      });
+    }
+
     const accounts = masto().v1.admin.accounts.list({
       remote: type === "remote" || undefined,
       suspended: suspended === true || undefined,

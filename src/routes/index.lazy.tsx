@@ -56,6 +56,9 @@ function ServerOauth() {
             localStorage.setItem("clientSecret", app.clientSecret!);
           }
 
+          // Store scopes in local storage so we can be sure whether or not they've changed
+          localStorage.setItem("scopes", scopes);
+
           const clientId = localStorage.getItem("clientId")!;
 
           const redirectUrl = `${import.meta.env.VITE_PUBLIC_DOMAIN}/oauth`;

@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { createRestAPIClient } from "masto";
 import { z } from "zod";
-import { scopes } from "../lib/client";
+import { checkScopes, scopes } from "../lib/client";
 
 const schema = z.object({
   code: z.string(),
@@ -11,6 +11,13 @@ export const Route = createFileRoute("/oauth")({
   validateSearch: (search) => schema.parse(search),
   loaderDeps: ({ search }) => ({ code: search.code }),
   loader: async ({ deps: { code }, navigate }) => {
+    // Allow us to change scopes later, throw credentials out if things are wrong.
+    if (!checkScopes()) {
+      redirect({
+        to: "/",
+      });
+    }
+
     const serverDomain = localStorage.getItem("serverDomain")!;
     const clientId = localStorage.getItem("clientId")!;
     const clientSecret = localStorage.getItem("clientSecret")!;
