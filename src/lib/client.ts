@@ -41,7 +41,7 @@ export async function checkAuthCached() {
     return authStatus;
   }
 
-  authStatus = checkAuth();
+  authStatus = await checkAuth();
   return authStatus;
 }
 
