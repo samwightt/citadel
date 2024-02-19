@@ -22,25 +22,45 @@ function Account() {
     <div className="p-8">
       <div className="flex flex-row items-center gap-4">
         <Avatar size="lg" img={account.account.avatar} />
-        <div>
-          <h1 className="text-2xl">{account.account.displayName}</h1>
-          <h2 className="text-xl">
-            @{account.username}@{account.domain}
-          </h2>
-        </div>
+        <AccountHeader account={account} />
       </div>
-      <div>
-        <p>Followers: {account.account.followersCount}</p>
-        <p>Following: {account.account.followingCount}</p>
-        <p>Created at: {account.account.createdAt}</p>
-        <p>Bio: {JSON.stringify(account.account.fields)}</p>
-      </div>
+      <AccountDetails account={account} />
       <SuspendButton />
       {account.domain && <LimitDomainButton domain={account.domain} />}
       <Posts />
     </div>
   );
 }
+
+interface AccountHeaderProps {
+  account: mastodon.v1.Admin.Account;
+}
+
+const AccountHeader = ({ account }: AccountHeaderProps) => {
+  return (
+    <div>
+      <h1 className="text-2xl">{account.account.displayName}</h1>
+      <h2 className="text-xl">
+        @{account.username}@{account.domain}
+      </h2>
+    </div>
+  );
+};
+
+interface AccountDetailsProps {
+  account: mastodon.v1.Admin.Account;
+}
+
+const AccountDetails = ({ account }: AccountDetailsProps) => {
+  return (
+    <div>
+      <p>Followers: {account.account.followersCount}</p>
+      <p>Following: {account.account.followingCount}</p>
+      <p>Created at: {account.account.createdAt}</p>
+      <p>Bio: {JSON.stringify(account.account.fields)}</p>
+    </div>
+  );
+};
 
 const Posts = () => {
   const { account } = useLoaderData({
