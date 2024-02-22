@@ -5,12 +5,22 @@ import {
   Link,
   useParams,
   useSearch,
+  useLinkProps,
 } from "@tanstack/react-router";
 import AccountItem from "../components/AccountItem";
+import { Button, ButtonProps } from "flowbite-react";
 
 export const Route = createLazyFileRoute("/accounts")({
   component: Accounts,
 });
+
+const ButtonLink = (
+  props: Parameters<typeof useLinkProps>[0] & ButtonProps
+) => {
+  const prop = useLinkProps(props);
+
+  return <Button as="a" {...props} {...prop} />;
+};
 
 function Accounts() {
   const data = useLoaderData({
@@ -87,16 +97,15 @@ function Accounts() {
             <AccountItem account={x} />
           </div>
         ))}
-        <Link
+        <ButtonLink
           search={{
             ...search,
             maxId: data.accounts.map((x) => x.id).sort()[0],
           }}
-          className="w-full block py-8 bg-purple-500 text-white my-4"
           params={{ ...otherParams }}
         >
           Next Page
-        </Link>
+        </ButtonLink>
       </div>
       <div className="w-3/4 overflow-scroll">
         <Outlet />
