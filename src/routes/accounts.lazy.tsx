@@ -97,15 +97,7 @@ function Accounts() {
             <AccountItem account={x} />
           </div>
         ))}
-        <ButtonLink
-          search={{
-            ...search,
-            maxId: data.accounts.map((x) => x.id).sort()[0],
-          }}
-          params={{ ...otherParams }}
-        >
-          Next Page
-        </ButtonLink>
+        <Pagination />
       </div>
       <div className="w-3/4 overflow-scroll">
         <Outlet />
@@ -113,3 +105,29 @@ function Accounts() {
     </div>
   );
 }
+
+const Pagination = () => {
+  const search = useSearch({
+    from: "/accounts",
+  });
+  const data = useLoaderData({
+    from: "/accounts",
+  });
+  const otherParams = useParams({
+    strict: false,
+  });
+
+  return (
+    <>
+      <ButtonLink
+        search={{
+          ...search,
+          maxId: data.accounts.map((x) => x.id).sort()[0],
+        }}
+        params={{ ...otherParams }}
+      >
+        Next Page
+      </ButtonLink>
+    </>
+  );
+};
